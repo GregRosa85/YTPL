@@ -77,10 +77,8 @@ public class YTPLCounter extends JFrame {
     JMenuBar menuBar;
     JMenu menuFile, menuInfo;
     JMenuItem exitItem, saveItem, about, count;
-    File pathToBinaryL;
-    //File pathToBinaryW = new File("/home/hemp85/Pulpit/firefox/firefox");
-    FirefoxBinary ffBinaryL;
-   // FirefoxBinary ffBinaryW = new FirefoxBinary(pathToBinaryW);
+    File pathToBinary;
+    FirefoxBinary ffBinary;
     FirefoxProfile firefoxProfile;
      
     
@@ -297,19 +295,24 @@ public class YTPLCounter extends JFrame {
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
         System.out.println("Current relative path is: " + s);
-        pathToBinaryL = new File(s+"/firefox_linux/firefox");
-            //File pathToBinaryW = new File("/home/hemp85/Pulpit/firefox/firefox");
-        ffBinaryL = new FirefoxBinary(pathToBinaryL);
-           // FirefoxBinary ffBinaryW = new FirefoxBinary(pathToBinaryW);
-        firefoxProfile = new FirefoxProfile(); 
+        
+        
+         
         String os = System.getProperty("os.name");
         if(os.equals("Linux"))
+            
         {
-            driver = new FirefoxDriver(ffBinaryL,firefoxProfile);
+            pathToBinary = new File(s+"/firefox_linux/firefox");
+            ffBinary = new FirefoxBinary(pathToBinary);
+            firefoxProfile = new FirefoxProfile();
+            driver = new FirefoxDriver(ffBinary,firefoxProfile);
         }
         else 
         {
-           // driver = new FirefoxDriver(ffBinaryW,firefoxProfile);
+            pathToBinary = new File(s+"\\firefox_win\\firefox.exe");
+            ffBinary = new FirefoxBinary(pathToBinary);
+            firefoxProfile = new FirefoxProfile();
+            driver = new FirefoxDriver(ffBinary,firefoxProfile);
         }
         
         driver.get(url);
