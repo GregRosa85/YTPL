@@ -40,7 +40,10 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultEditorKit;
 import org.apache.poi.common.usermodel.Hyperlink;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -63,23 +66,24 @@ import org.openqa.selenium.firefox.FirefoxProfile;
  */
 public class YTPLCounter extends JFrame {
     
-    private final List<JComponent> allComponents;
-    private final JTextField tf;
-    private final JButton theButton;
-    private JTextArea ta;
-    private String lastLine = "";
-    private final JSplitPane splitPane;
-    private JProgressBar bp;
-    private WebDriver driver;
-    private final JPopupMenu rightClick;
-    private List<String> timeL,titleL,linkL;
-    private final JMenuBar menuBar;
-    private final JMenu menuFile, menuInfo;
-    private final JMenuItem exitItem, saveItem, about, count;
-    private File pathToBinary;
-    private FirefoxBinary ffBinary;
-    private FirefoxProfile firefoxProfile;
-    private final Dimension dim;
+    List<JComponent> allComponents = new ArrayList<>();
+    JTextField tf;
+    JButton theButton;
+    JTextArea ta;
+    String lastLine = "";
+    JSplitPane splitPane;
+    JProgressBar bp;
+    WebDriver driver;
+    JPopupMenu rightClick;
+    List<String> timeL = new ArrayList<>();
+    List<String> titleL = new ArrayList<>();
+    List<String> linkL= new ArrayList<>();
+    JMenuBar menuBar;
+    JMenu menuFile, menuInfo;
+    JMenuItem exitItem, saveItem, about, count;
+    File pathToBinary;
+    FirefoxBinary ffBinary;
+    FirefoxProfile firefoxProfile;
      
     
     public YTPLCounter(){
@@ -123,12 +127,11 @@ public class YTPLCounter extends JFrame {
         
         
         JPanel[] panelList = {new JPanel(), new JPanel()};
-        allComponents = new ArrayList<>();
         allComponents.add(new JTextField("Please, paste link to YT plalist"));//0
         allComponents.add(new JButton("Count total time"));//1
         allComponents.add(new JTextArea(""));//2
         
-        allComponents.stream().forEach((jComponent) -> {
+        for(JComponent jComponent:allComponents){
             if(!(jComponent instanceof JTextArea)){
                 panelList[0].add(jComponent);
             } else{
@@ -143,7 +146,7 @@ public class YTPLCounter extends JFrame {
                         JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED),BorderLayout.CENTER);
                 
             }
-        });
+        }
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, panelList[0], panelList[1]);
         splitPane.setEnabled(false);
         panelList[0].setBorder(BorderFactory.createTitledBorder("Link"));
@@ -165,9 +168,7 @@ public class YTPLCounter extends JFrame {
         rightClick.add(pasteAction);
         tf.setComponentPopupMenu(rightClick);
        
-        ta.setEditable(false);
-        
-        dim = new Dimension(400,400);
+        Dimension dim = new Dimension(400,400);
         this.setPreferredSize(dim);
         this.setMaximumSize(dim);
         this.setMinimumSize(dim);
@@ -182,10 +183,7 @@ public class YTPLCounter extends JFrame {
         
     }
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(()->{
-            YTPLCounter newFrame = new YTPLCounter();
-            
-                });
+        SwingUtilities.invokeLater(()->new YTPLCounter());
     }
 
     private class ListenForMouse implements MouseListener{
@@ -233,7 +231,7 @@ public class YTPLCounter extends JFrame {
                 {
                     fileSaver();
                 } 
-                catch (IOException | InvalidFormatException ex) 
+                catch (IOException ex) 
                 {
                     Logger.getLogger(YTPLCounter.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -254,9 +252,9 @@ public class YTPLCounter extends JFrame {
             {
                 lastLine = "Invalid link";
                 ta.setText("");
-                timeL = new ArrayList<>();
-                titleL = new ArrayList<>();
-                linkL = new ArrayList<>();
+                timeL.clear();
+                titleL.clear();
+                linkL.clear();
                 bp.setVisible(true);
                 bp.setIndeterminate(true);
                   
@@ -399,7 +397,7 @@ public class YTPLCounter extends JFrame {
         ta.append(lastLine);
     }
     
-    private void fileSaver() throws IOException, InvalidFormatException
+    private void fileSaver() throws IOException
     { 
         
         if(timeL.isEmpty())
@@ -409,24 +407,11 @@ public class YTPLCounter extends JFrame {
          else 
         {
             JFileChooser fc = new JFileChooser();
-            
-            fc.setFileFilter(new FileNameExtensionFilter("Excel files .xlsx", ".xlsx"));
+            fc.setFileFilter(new FileNameExtensionFilter("Excel Files .xlsx", ".xlsx"));
 
             if(fc.showSaveDialog(null)==JFileChooser.APPROVE_OPTION)
             {
                 File file = fc.getSelectedFile();
-                
-                if(file.exists())
-                {
-                    int choice = JOptionPane.showConfirmDialog(fc, "File exists. Overwrite ?", "Warning", JOptionPane.YES_NO_OPTION);
-                    
-                    switch(choice)
-                    {
-                        case JOptionPane.NO_OPTION:return;
-                    }    
-                }
-                  
-                
                 String filePath = file.getAbsolutePath();
                 
                     if(!file.getName().endsWith(".xlsx"))
@@ -434,7 +419,6 @@ public class YTPLCounter extends JFrame {
                         file = new File(filePath+".xlsx");
                     }
             
-           
             XSSFWorkbook workbook = new XSSFWorkbook();
             CreationHelper ch = workbook.getCreationHelper();
             CellStyle cellStyle = workbook.createCellStyle();
@@ -468,10 +452,10 @@ public class YTPLCounter extends JFrame {
                 
                 }
             }
-                try (FileOutputStream fos = new FileOutputStream(file)) {
-                    workbook.write(fos);
-                }
-          
+            FileOutputStream fos = new FileOutputStream(file);
+            workbook.write(fos);
+            fos.close();
+            workbook.close();
             JOptionPane.showMessageDialog(null, "Done !");
             }
         }
