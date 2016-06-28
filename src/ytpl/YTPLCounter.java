@@ -79,6 +79,7 @@ public class YTPLCounter extends JFrame {
     private File pathToBinary;
     private FirefoxBinary ffBinary;
     private FirefoxProfile firefoxProfile;
+    private final Dimension dim;
      
     
     public YTPLCounter(){
@@ -166,7 +167,7 @@ public class YTPLCounter extends JFrame {
        
         ta.setEditable(false);
         
-        Dimension dim = new Dimension(400,400);
+        dim = new Dimension(400,400);
         this.setPreferredSize(dim);
         this.setMaximumSize(dim);
         this.setMinimumSize(dim);
@@ -181,7 +182,10 @@ public class YTPLCounter extends JFrame {
         
     }
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(()->new YTPLCounter());
+        SwingUtilities.invokeLater(()->{
+            YTPLCounter newFrame = new YTPLCounter();
+            
+                });
     }
 
     private class ListenForMouse implements MouseListener{
